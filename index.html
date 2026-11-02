@@ -154,6 +154,7 @@ function sourceName(raw) {
   const s = String(raw).toLowerCase();
   if (s.includes("sponsor") || s.includes("ads") || s.includes("advert")) return "📣 الإعلانات المدفوعة";
   if (s.includes("home")) return "🏠 الصفحة الرئيسية في روبلكس";
+  if (s.includes("continue")) return "▶️ متابعة اللعب (عائدون)";
   if (s.includes("friend")) return "👭 الأصدقاء";
   if (s.includes("search")) return "🔎 البحث";
   if (s.includes("chart") || s.includes("sort")) return "📊 قوائم الألعاب";
@@ -283,8 +284,10 @@ function render() {
   const src = (M.sources28 || []).map((s) => ({ name: sourceName(s.key), raw: s.key, v: s.points.length ? s.points[s.points.length - 1].v : 0 }))
     .filter((s) => !/total/i.test(s.raw) && s.v > 0).sort((a, b) => b.v - a.v);
   const srcTotal = src.reduce((a, s) => a + s.v, 0);
+  // share of NEW arrivals that came from paid ads ("continue to play" = players coming back, not new)
+  const arrivals = src.filter((s) => !/continue/i.test(s.raw)).reduce((a, s) => a + s.v, 0);
   const ads = src.filter((s) => s.name.includes("الإعلانات")).reduce((a, s) => a + s.v, 0);
-  const adShare = srcTotal ? (ads / srcTotal) * 100 : null;
+  const adShare = arrivals ? (ads / arrivals) * 100 : null;
 
   // ---------------- summary in plain words
   const lines = [];
