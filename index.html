@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أداء مقهى القرية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#ffffff; --card:#ffffff; --soft:#f6f4fb; --line:#e7e3f0;
+  --ink:#1d1630; --ink2:#4b4560; --muted:#7a7490;
+  --purple:#7D2AE8; --teal:#00A3AA; --orange:#E8701F;
+  --purple-soft:#f1e8fd; --teal-soft:#e2f6f7; --orange-soft:#fdeee3;
+  --good:#1f8a4c; --good-soft:#e5f5ec; --warn:#b26a00; --warn-soft:#fdf2dc; --bad:#c23b3b; --bad-soft:#fbe7e7;
+  --band:rgba(0,163,170,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Tajawal,"Segoe UI",Tahoma,sans-serif;font-size:17px;line-height:1.7}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between;padding:8px 0 18px;border-bottom:2px solid var(--line)}
+.eyebrow{font-weight:700;color:var(--purple);font-size:15px}
+h1{margin:2px 0 0;font-size:clamp(28px,4.4vw,40px);font-weight:800;line-height:1.25}
+.meta{color:var(--ink2);font-size:15px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-weight:700;font-size:14px;border:1.5px solid currentColor}
+.pill.good{color:var(--good);background:var(--good-soft)} .pill.warn{color:var(--warn);background:var(--warn-soft)} .pill.bad{color:var(--bad);background:var(--bad-soft)}
+.controls{display:flex;gap:6px;margin-top:6px}
+.controls button{font:inherit;font-size:15px;font-weight:700;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer}
+.controls button[aria-pressed="true"]{background:var(--purple);border-color:var(--purple);color:#fff}
+h2{font-size:24px;font-weight:800;margin:34px 0 12px}
+h2 small{display:block;font-size:15px;font-weight:500;color:var(--ink2)}
+.summary{background:var(--soft);border:1.5px solid var(--line);border-radius:18px;padding:18px 20px;margin-top:22px}
+.summary h2{margin:0 0 8px;font-size:22px}
+.summary ul{margin:0;padding-inline-start:22px}
+.summary li{margin:6px 0;font-size:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.kpi{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.kpi .label{font-weight:700;color:var(--ink2);font-size:16px;display:flex;align-items:center;gap:8px}
+.kpi .label i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.kpi .value{font-size:36px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .value small{font-size:17px;font-weight:700;color:var(--ink2)}
+.kpi .trend{font-size:15px;color:var(--ink2)}
+.kpi .trend b.up{color:var(--good)} .kpi .trend b.down{color:var(--bad)}
+.kpi .why{font-size:15px;color:var(--ink2);border-top:1px dashed var(--line);padding-top:8px;margin-top:auto}
+.kpi .goal{font-size:14px;color:var(--muted)}
+.chart-card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px 10px;margin-bottom:16px}
+.chart-card h3{margin:0;font-size:20px;font-weight:800}
+.chart-card p.desc{margin:2px 0 8px;color:var(--ink2);font-size:15.5px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:15px;color:var(--ink2);margin-bottom:4px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
+.legend i.band{height:12px;background:var(--band);border:1px dashed var(--teal)}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .tip{position:absolute;pointer-events:none;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;font-size:14.5px;box-shadow:0 6px 20px rgba(29,22,48,.12);white-space:nowrap;display:none;z-index:2}
+.chart .tip b{display:block;font-size:13.5px;color:var(--ink2);font-weight:700}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px}
+details.table{margin:4px 0 6px;font-size:15px}
+details.table summary{cursor:pointer;color:var(--purple);font-weight:700}
+details.table .scroll{overflow-x:auto;max-height:280px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:start;white-space:nowrap}
+th{background:var(--soft);position:sticky;top:0}
+.bars .row{display:grid;grid-template-columns:minmax(110px,170px) 1fr auto;gap:10px;align-items:center;margin:8px 0;font-size:16px}
+.bars .track{height:22px;background:var(--soft);border-radius:6px;overflow:hidden}
+.bars .fill{height:100%;background:var(--purple);border-radius:6px 0 0 6px;min-width:3px}
+.bars .num{font-weight:800;font-variant-numeric:tabular-nums}
+.todo{background:var(--orange-soft);border:1.5px solid #f6c9a6;border-radius:18px;padding:16px 20px}
+.todo ol{margin:0;padding-inline-start:24px} .todo li{margin:8px 0;font-size:17.5px}
+.glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.glossary div{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:15.5px}
+.glossary b{display:block;font-size:16.5px}
+.empty{background:var(--purple-soft);border:1.5px solid #d8c2fa;border-radius:18px;padding:20px;margin-top:22px}
+.empty ol li{margin:8px 0}
+.err{color:var(--warn);font-size:14.5px}
+footer{margin-top:40px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:560px){body{font-size:16px}.kpi .value{font-size:30px}.bars .row{grid-template-columns:100px 1fr auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">لوحة الأداء · روبلكس</div>
+      <h1>البقاء على قيد الحياة في مقهى القرية</h1>
+      <div class="meta" id="meta">جارٍ تحميل البيانات…</div>
+    </div>
+    <div>
+      <div class="meta" style="text-align:end">الفترة المعروضة</div>
+      <div class="controls" role="group" aria-label="الفترة">
+        <button data-days="7">7 أيام</button>
+        <button data-days="28" aria-pressed="true">28 يومًا</button>
+        <button data-days="90">90 يومًا</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="app"></div>
+
+  <footer>
+    البيانات من تحليلات روبلكس الرسمية (Open Cloud Analytics)، وتُحدَّث تلقائيًا كل يوم الساعة 6 صباحًا بتوقيت الرياض.
+    أرقام أمس قد تتغير قليلًا خلال 48 ساعة. المعدلات المرجعية تقريبية ومأخوذة من لوحة روبلكس نفسها.
+  </footer>
+</div>
+
+<script>
+// ------------------------------------------------------------------ settings
+const BENCH = { // approximate ranges shown in the Roblox Creator Dashboard
+  d1: [6, 12], d7: [0.5, 2], playtime: [13, 28], session: [8, 20],
+};
+const GOAL = { d1: 8, playtime: 12 };
+const C = { purple: "#7D2AE8", teal: "#00A3AA", orange: "#E8701F", ink2: "#4b4560", line: "#e7e3f0", muted: "#7a7490" };
+
+const fmt = (v, d = 0) => v == null || !isFinite(v) ? "—" : Number(v).toLocaleString("ar-SA-u-nu-latn", { maximumFractionDigits: d, minimumFractionDigits: d });
+const pct = (v, d = 1) => v == null ? "—" : fmt(v, d) + "%";
+const dayName = (t) => new Date(t + "T00:00:00Z").toLocaleDateString("ar-SA-u-nu-latn-ca-gregory", { day: "numeric", month: "short", timeZone: "UTC" });
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let DATA = null, EVENTS = [], DAYS = 28;
+
+// retention values may come as a fraction (0.02) or a percent (2) — show percent
+function asPercent(points) {
+  if (!points || !points.length) return [];
+  const max = Math.max(...points.map((p) => p.v));
+  return max <= 1 ? points.map((p) => ({ t: p.t, v: p.v * 100 })) : points;
+}
+function lastDays(points, n) {
+  if (!points || !points.length) return [];
+  const end = new Date(points[points.length - 1].t + "T00:00:00Z");
+  const start = new Date(end); start.setUTCDate(start.getUTCDate() - (n - 1));
+  const s = start.toISOString().slice(0, 10);
+  return points.filter((p) => p.t >= s);
+}
+const avg = (pts) => pts.length ? pts.reduce((a, p) => a + p.v, 0) / pts.length : null;
+const sum = (pts) => pts.length ? pts.reduce((a, p) => a + p.v, 0) : null;
+function windows(points, n) { // this period vs the period before it
+  if (!points || !points.length) return [[], []];
+  const cur = lastDays(points, n);
+  const first = cur.length ? cur[0].t : null;
+  const before = points.filter((p) => p.t < first).slice(-n);
+  return [cur, before];
+}
+function status(v, [lo, hi]) {
+  if (v == null) return null;
+  if (v >= lo) return v > hi ? { k: "good", t: "✅ ممتاز" } : { k: "good", t: "✅ ضمن المعدل" };
+  if (v >= lo * 0.6) return { k: "warn", t: "⚠️ قريب من المعدل" };
+  return { k: "bad", t: "🔻 أقل من المعدل" };
+}
+
+// ------------------------------------------------------------------ source names
+function sourceName(raw) {
+  const s = String(raw).toLowerCase();
+  if (s.includes("sponsor") || s.includes("ads") || s.includes("advert")) return "📣 الإعلانات المدفوعة";
+  if (s.includes("home")) return "🏠 الصفحة الرئيسية في روبلكس";
+  if (s.includes("friend")) return "👭 الأصدقاء";
+  if (s.includes("search")) return "🔎 البحث";
+  if (s.includes("chart") || s.includes("sort")) return "📊 قوائم الألعاب";
+  if (s.includes("teleport")) return "🌀 انتقال من لعبة أخرى";
+  if (s.includes("feature")) return "⭐ مختارة من روبلكس";
+  if (s.includes("portal")) return "🚪 إعلانات البوابات";
+  if (s.includes("total")) return "المجموع";
+  if (s.includes("other") || s.includes("unknown")) return "مصادر أخرى";
+  return raw;
+}
+
+// ------------------------------------------------------------------ line chart (SVG + hover)
+function lineChart(el, series, opt = {}) {
+  const W = Math.max(300, el.clientWidth || 600), H = opt.height || 240;
+  const m = { t: 12, r: 12, b: 30, l: 44 };
+  const all = series.flatMap((s) => s.points);
+  if (!all.length) { el.innerHTML = '<p class="meta">لا توجد بيانات لهذه الفترة بعد.</p>'; return; }
+  const dates = [...new Set(all.map((p) => p.t))].sort();
+  let ymax = Math.max(...all.map((p) => p.v), opt.band ? opt.band[1] : 0, opt.goal || 0);
+  ymax = ymax <= 0 ? 1 : niceMax(ymax / 4) * 4; // four even steps
+  const x = (t) => {
+    const i = dates.indexOf(t);
+    return dates.length === 1 ? m.l + (W - m.l - m.r) / 2 : W - m.r - (i / (dates.length - 1)) * (W - m.l - m.r); // RTL: newest at the left
+  };
+  const y = (v) => m.t + (1 - v / ymax) * (H - m.t - m.b);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opt.label || "")}">`;
+  // grid + y labels (recessive)
+  for (let k = 0; k <= 4; k++) {
+    const v = (ymax / 4) * k, yy = y(v);
+    svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${yy}" y2="${yy}" stroke="${C.line}" stroke-width="1"/>`;
+    svg += `<text x="${m.l - 8}" y="${yy + 4}" font-size="12" fill="${C.muted}" text-anchor="end">${fmt(v, ymax < 5 ? 1 : 0)}${opt.unit === "%" ? "%" : ""}</text>`;
+  }
+  if (opt.band) {
+    const y1 = y(Math.min(opt.band[1], ymax)), y0 = y(opt.band[0]);
+    svg += `<rect x="${m.l}" y="${y1}" width="${W - m.l - m.r}" height="${Math.max(0, y0 - y1)}" fill="rgba(0,163,170,.10)" stroke="${C.teal}" stroke-dasharray="4 4" stroke-width="1"/>`;
+  }
+  if (opt.goal) {
+    svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(opt.goal)}" y2="${y(opt.goal)}" stroke="${C.orange}" stroke-width="2" stroke-dasharray="6 5"/>`;
+    svg += `<text x="${W - m.r - 4}" y="${y(opt.goal) - 6}" font-size="12.5" font-weight="700" fill="${C.ink2}" text-anchor="end">الهدف ${fmt(opt.goal)}${opt.unit === "%" ? "%" : " د"}</text>`;
+  }
+  // events (ad campaigns, updates)
+  for (const e of EVENTS) {
+    if (!dates.includes(e.date)) continue;
+    const xx = x(e.date);
+    svg += `<line x1="${xx}" x2="${xx}" y1="${m.t}" y2="${H - m.b}" stroke="${C.muted}" stroke-dasharray="2 4"/><text x="${xx}" y="${m.t + 10}" font-size="15" text-anchor="middle">📣</text>`;
+  }
+  // x labels (a few)
+  const step = Math.max(1, Math.ceil(dates.length / 6));
+  dates.forEach((t, i) => {
+    const last = i === dates.length - 1;
+    if ((i % step === 0 && (last || dates.length - 1 - i >= step / 2 + 0.5)) || last) svg += `<text x="${x(t)}" y="${H - 8}" font-size="12" fill="${C.muted}" text-anchor="middle">${dayName(t)}</text>`;
+  });
+  // lines
+  for (const s of series) {
+    if (!s.points.length) continue;
+    const d = s.points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
+    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (s.points.length < 40) for (const p of s.points) svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3.2" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`;
+  }
+  svg += `<line class="cross" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="${C.ink2}" stroke-width="1" visibility="hidden"/>`;
+  svg += `<rect class="hit" x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H}" fill="transparent"/></svg><div class="tip"></div>`;
+  el.innerHTML = svg;
+  const svgEl = el.querySelector("svg"), tip = el.querySelector(".tip"), cross = el.querySelector(".cross");
+  const move = (ev) => {
+    const r = svgEl.getBoundingClientRect();
+    const px = ((ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left) * (W / r.width);
+    let best = dates[0], bd = 1e9;
+    for (const t of dates) { const dd = Math.abs(x(t) - px); if (dd < bd) { bd = dd; best = t; } }
+    cross.setAttribute("x1", x(best)); cross.setAttribute("x2", x(best)); cross.setAttribute("visibility", "visible");
+    const ev2 = EVENTS.find((e) => e.date === best);
+    tip.innerHTML = `<b>${dayName(best)}</b>` + series.map((s) => {
+      const p = s.points.find((q) => q.t === best);
+      return `<div><span style="color:${s.color}">●</span> ${esc(s.name)}: <strong>${p ? fmt(p.v, opt.digits ?? 0) + (opt.unit || "") : "—"}</strong></div>`;
+    }).join("") + (ev2 ? `<div>📣 ${esc(ev2.label)}</div>` : "");
+    tip.style.display = "block";
+    const left = (x(best) / W) * r.width;
+    tip.style.left = Math.min(Math.max(0, left - tip.offsetWidth / 2), r.width - tip.offsetWidth) + "px";
+    tip.style.top = "4px";
+  };
+  const hide = () => { tip.style.display = "none"; cross.setAttribute("visibility", "hidden"); };
+  el.querySelector(".hit").addEventListener("mousemove", move);
+  el.querySelector(".hit").addEventListener("touchstart", move, { passive: true });
+  el.addEventListener("mouseleave", hide);
+}
+function niceMax(v) {
+  const p = Math.pow(10, Math.floor(Math.log10(v))), n = v / p;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
+}
+function tableOf(series, unit = "", digits = 0) {
+  const dates = [...new Set(series.flatMap((s) => s.points.map((p) => p.t)))].sort().reverse();
+  return `<details class="table"><summary>عرض الأرقام كجدول</summary><div class="scroll"><table><thead><tr><th>اليوم</th>${series.map((s) => `<th>${esc(s.name)}</th>`).join("")}</tr></thead><tbody>${dates.map((t) => `<tr><td>${dayName(t)}</td>${series.map((s) => { const p = s.points.find((q) => q.t === t); return `<td>${p ? fmt(p.v, digits) + unit : "—"}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div></details>`;
+}
+function legend(items) {
+  return `<div class="legend">${items.map((i) => i.band ? `<span><i class="band"></i>${esc(i.name)}</span>` : `<span><i style="background:${i.color}"></i>${esc(i.name)}</span>`).join("")}</div>`;
+}
+
+// ------------------------------------------------------------------ page
+function render() {
+  const app = document.getElementById("app");
+  const M = DATA.metrics || {};
+  const n = DAYS;
+
+  // series
+  const dau = M.dau || [];
+  const byNew = (M.dauByNew || []);
+  const isNew = (k) => /true|new|جديد/i.test(k) && !/false|returning/i.test(k);
+  const newS = (byNew.find((s) => isNew(s.key)) || { points: [] }).points;
+  const retS = (byNew.find((s) => !isNew(s.key) && s.key !== "Total") || { points: [] }).points;
+  const d1 = asPercent(M.d1), d7 = asPercent(M.d7), stick = asPercent(M.stickiness);
+  const play = M.playtimePerDau || [], session = M.sessionMinutes || [];
+
+  const [dCur, dPrev] = windows(dau, n), [nCur, nPrev] = windows(newS, n);
+  const [r1Cur, r1Prev] = windows(d1, n), [r7Cur] = windows(d7, n);
+  const [pCur, pPrev] = windows(play, n), [vCur, vPrev] = windows(M.visits || [], n);
+  const [revCur] = windows(M.revenue || [], n);
+
+  const K = {
+    dau: avg(dCur), dauPrev: avg(dPrev),
+    newP: sum(nCur), newPrev: sum(nPrev),
+    d1: avg(r1Cur), d1Prev: avg(r1Prev), d7: avg(r7Cur),
+    play: avg(pCur), playPrev: avg(pPrev),
+    visits: sum(vCur), visitsPrev: sum(vPrev),
+    revenue: sum(revCur),
+  };
+
+  // sources (28 days)
+  const src = (M.sources28 || []).map((s) => ({ name: sourceName(s.key), raw: s.key, v: s.points.length ? s.points[s.points.length - 1].v : 0 }))
+    .filter((s) => !/total/i.test(s.raw) && s.v > 0).sort((a, b) => b.v - a.v);
+  const srcTotal = src.reduce((a, s) => a + s.v, 0);
+  const ads = src.filter((s) => s.name.includes("الإعلانات")).reduce((a, s) => a + s.v, 0);
+  const adShare = srcTotal ? (ads / srcTotal) * 100 : null;
+
+  // ---------------- summary in plain words
+  const lines = [];
+  if (K.d1 != null) lines.push(`من كل <b>100</b> لاعب جديد، يعود <b>${fmt(K.d1, 1)}</b> في اليوم التالي. المعدل في روبلكس بين 6 و12، وهدفنا <b>${GOAL.d1}</b> أو أكثر.`);
+  if (K.play != null) lines.push(`اللاعب يقضي في المتوسط <b>${fmt(K.play, 1)} دقيقة</b> يوميًا في اللعبة. المعدل بين 13 و28 دقيقة.`);
+  if (K.dau != null) lines.push(`يلعب اللعبة يوميًا حوالي <b>${fmt(K.dau)}</b> لاعب${K.dauPrev ? `، ${trendWord(K.dau, K.dauPrev)} مقارنة بالفترة السابقة` : ""}.`);
+  if (adShare != null) lines.push(`<b>${fmt(adShare)}%</b> من اللاعبين الجدد جاؤوا من الإعلانات المدفوعة خلال آخر 28 يومًا${adShare > 70 ? " — اللعبة ما زالت تعتمد على الإعلانات، والهدف أن تأتي الزيارات من الصفحة الرئيسية والأصدقاء" : ""}.`);
+  if (!lines.length) lines.push("لا توجد أرقام كافية بعد. ستظهر الخلاصة بعد أول تحديث ناجح.");
+
+  // ---------------- KPI tiles
+  const tile = (o) => `<div class="kpi">
+    <div class="label"><i style="background:${o.color}"></i>${o.label}</div>
+    <div class="value">${o.value}${o.unit ? `<small> ${o.unit}</small>` : ""}</div>
+    ${o.status ? `<div><span class="pill ${o.status.k}">${o.status.t}</span></div>` : ""}
+    <div class="trend">${o.trend || ""}</div>
+    ${o.goal ? `<div class="goal">${o.goal}</div>` : ""}
+    <div class="why">${o.why}</div></div>`;
+  const tiles = [
+    tile({ label: "العودة في اليوم التالي", color: C.purple, value: K.d1 == null ? "—" : fmt(K.d1, 1) + "%", status: status(K.d1, BENCH.d1), trend: trendLine(K.d1, K.d1Prev, true), goal: `المعدل: 6–12% · هدفنا ${GOAL.d1}%+`, why: "أهم رقم: كم لاعبًا جديدًا عاد ليلعب في اليوم التالي. إذا ارتفع، فاللعبة ممتعة ويستحق الصرف على الإعلانات." }),
+    tile({ label: "دقائق اللعب لكل لاعب", color: C.teal, value: fmt(K.play, 1), unit: "دقيقة", status: status(K.play, BENCH.playtime), trend: trendLine(K.play, K.playPrev), goal: `المعدل: 13–28 دقيقة · هدفنا ${GOAL.playtime}+`, why: "كم يبقى اللاعب في اللعبة يوميًا. إذا كان قليلًا، فاللاعب يغادر قبل الوصول للجزء الممتع (الليل)." }),
+    tile({ label: "لاعبون يوميًا", color: C.orange, value: fmt(K.dau), unit: "لاعب", trend: trendLine(K.dau, K.dauPrev), why: "متوسط عدد اللاعبين المختلفين كل يوم. يقفز مع الإعلانات، والمهم أن يبقى مرتفعًا بعدها." }),
+    tile({ label: "لاعبون جدد", color: C.purple, value: fmt(K.newP), unit: "لاعب", trend: trendLine(K.newP, K.newPrev), why: `عدد من جرّب اللعبة لأول مرة خلال آخر ${n} يومًا.` }),
+    tile({ label: "العودة بعد أسبوع", color: C.teal, value: K.d7 == null ? "—" : fmt(K.d7, 2) + "%", status: status(K.d7, BENCH.d7), goal: "المعدل: 0.5–2%", why: "من بقي يلعب بعد 7 أيام. هؤلاء هم جمهور اللعبة الحقيقي." }),
+    tile({ label: "الزيارات", color: C.orange, value: fmt(K.visits), unit: "جلسة", trend: trendLine(K.visits, K.visitsPrev), why: "عدد مرات الدخول إلى اللعبة، بما فيها تكرار نفس اللاعب." }),
+  ];
+  if (K.revenue != null) tiles.push(tile({ label: "الأرباح", color: C.purple, value: fmt(K.revenue), unit: "روبوكس", why: `مجموع ما صرفه اللاعبون في اللعبة خلال آخر ${n} يومًا.` }));
+
+  // ---------------- what to do
+  const todo = [];
+  if (K.d1 != null && K.d1 < GOAL.d1) todo.push("العودة في اليوم التالي أقل من الهدف: ركّزي على أول 3 دقائق (وصول أسرع لأول ليلة، هدف واضح، مكافأة للعودة غدًا) قبل زيادة الإعلانات.");
+  if (K.play != null && K.play < BENCH.playtime[0]) todo.push("مدة اللعب قصيرة: أضيفي سببًا للبقاء ليلة إضافية (مكافأة متصاعدة لكل ليلة، أو زبون نادر يظهر في الليلة 2).");
+  if (adShare != null && adShare > 70) todo.push("أغلب اللاعبين من الإعلانات: لا تزيدي الصرف حتى ترتفع العودة إلى 8%+. بعدها كل ريال في الإعلان يجلب لاعبين يعودون.");
+  if (K.d1 != null && K.d1 >= GOAL.d1) todo.push("العودة ممتازة! الآن وقت مناسب لحملة إعلانية أكبر، وتجربة صورة غلاف جديدة لرفع النقر.");
+  if (!todo.length) todo.push("الأرقام مستقرة. راقبي اللوحة بعد كل تحديث للعبة أو حملة إعلانية.");
+
+  // ---------------- source bars
+  const maxSrc = Math.max(1, ...src.map((s) => s.v));
+  const bars = src.length ? `<div class="bars">${src.slice(0, 8).map((s) => `<div class="row"><div>${esc(s.name)}</div><div class="track"><div class="fill" style="width:${(s.v / maxSrc) * 100}%"></div></div><div class="num">${fmt(s.v)} <span class="meta">(${fmt((s.v / srcTotal) * 100)}%)</span></div></div>`).join("")}</div>` : '<p class="meta">لا توجد بيانات مصادر بعد.</p>';
+
+  // D1 by source (last 28 days average)
+  const d1src = (M.d1BySource || []).map((s) => ({ name: sourceName(s.key), raw: s.key, v: avg(asPercent(s.points)) })).filter((s) => s.v != null && !/total/i.test(s.raw)).sort((a, b) => b.v - a.v);
+  const d1srcTable = d1src.length ? `<table><thead><tr><th>المصدر</th><th>العودة في اليوم التالي</th></tr></thead><tbody>${d1src.map((s) => `<tr><td>${esc(s.name)}</td><td><b>${pct(s.v)}</b></td></tr>`).join("")}</tbody></table>` : "";
+
+  const errs = Object.keys(DATA.errors || {});
+  app.innerHTML = `
+  <section class="summary"><h2>📝 الخلاصة باختصار</h2><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></section>
+
+  <h2>الأرقام الرئيسية<small>متوسط آخر ${n} يومًا، ومقارنة بالـ ${n} يومًا التي قبلها</small></h2>
+  <div class="kpis">${tiles.join("")}</div>
+
+  <h2>كيف تتغير الأرقام يومًا بيوم<small>مرّري المؤشر أو الإصبع على الرسم لترين أرقام كل يوم · 📣 = حملة إعلانية</small></h2>
+  <div class="chart-card"><h3>اللاعبون يوميًا</h3><p class="desc">الجدد (أول مرة) مقابل العائدين. إذا ارتفع خط العائدين، فاللعبة تكسب جمهورًا دائمًا.</p>
+    ${legend([{ name: "لاعبون جدد", color: C.purple }, { name: "لاعبون عائدون", color: C.orange }])}<div class="chart" id="c-dau"></div>
+    ${tableOf([{ name: "جدد", points: lastDays(newS, n) }, { name: "عائدون", points: lastDays(retS, n) }])}</div>
+  <div class="grid2">
+    <div class="chart-card"><h3>العودة في اليوم التالي</h3><p class="desc">النسبة من اللاعبين الجدد الذين عادوا في اليوم التالي.</p>
+      ${legend([{ name: "لعبتك", color: C.purple }, { name: "المعدل في روبلكس", band: true }, { name: "الهدف", color: C.orange }])}<div class="chart" id="c-d1"></div>
+      ${tableOf([{ name: "العودة", points: lastDays(d1, n) }], "%", 1)}</div>
+    <div class="chart-card"><h3>دقائق اللعب لكل لاعب</h3><p class="desc">متوسط ما يقضيه كل لاعب في اللعبة يوميًا.</p>
+      ${legend([{ name: "لعبتك", color: C.teal }, { name: "المعدل في روبلكس", band: true }, { name: "الهدف", color: C.orange }])}<div class="chart" id="c-play"></div>
+      ${tableOf([{ name: "دقائق", points: lastDays(play, n) }], " د", 1)}</div>
+  </div>
+
+  <h2>من أين يأتي اللاعبون؟<small>اللاعبون الجدد حسب المصدر خلال آخر 28 يومًا</small></h2>
+  <div class="grid2">
+    <div class="chart-card"><h3>مصادر اللاعبين</h3><p class="desc">كلما زاد نصيب «الصفحة الرئيسية» و«الأصدقاء»، قلّ اعتمادك على الإعلانات المدفوعة.</p>${bars}</div>
+    <div class="chart-card"><h3>أي مصدر يجلب لاعبين يعودون؟</h3><p class="desc">العودة في اليوم التالي حسب المصدر. يساعدك في معرفة إن كان الإعلان يجلب الجمهور المناسب.</p>${d1srcTable || '<p class="meta">لا توجد بيانات كافية بعد.</p>'}</div>
+  </div>
+
+  <h2>✅ ماذا أفعل الآن؟<small>اقتراحات تتغير تلقائيًا حسب الأرقام</small></h2>
+  <div class="todo"><ol>${todo.map((t) => `<li>${t}</li>`).join("")}</ol></div>
+
+  <h2>معاني المصطلحات</h2>
+  <div class="glossary">
+    <div><b>العودة في اليوم التالي (D1)</b>من لعب اليوم لأول مرة، كم منهم عاد غدًا؟ أهم مقياس لمتعة اللعبة.</div>
+    <div><b>العودة بعد أسبوع (D7)</b>من لعب لأول مرة، كم منهم ما زال يلعب بعد 7 أيام؟</div>
+    <div><b>اللاعبون يوميًا (DAU)</b>عدد اللاعبين المختلفين في اليوم، بغض النظر عن عدد مرات دخولهم.</div>
+    <div><b>دقائق اللعب لكل لاعب</b>مجموع وقت اللعب في اليوم مقسومًا على عدد اللاعبين.</div>
+    <div><b>الزيارات (الجلسات)</b>كل مرة يدخل فيها لاعب إلى اللعبة تُحسب زيارة.</div>
+    <div><b>المعدل في روبلكس</b>الشريط المظلل في الرسوم: المدى الطبيعي لألعاب مشابهة كما تعرضه لوحة روبلكس.</div>
+  </div>
+  ${errs.length ? `<p class="err">ملاحظة: لم تُقرأ بعض الأرقام في آخر تحديث (${errs.length})، فبقيت قيمها السابقة.</p>` : ""}`;
+
+  lineChart(document.getElementById("c-dau"), [{ name: "لاعبون جدد", color: C.purple, points: lastDays(newS, n) }, { name: "لاعبون عائدون", color: C.orange, points: lastDays(retS, n) }], { label: "اللاعبون يوميًا" });
+  lineChart(document.getElementById("c-d1"), [{ name: "العودة", color: C.purple, points: lastDays(d1, n) }], { band: BENCH.d1, goal: GOAL.d1, unit: "%", digits: 1, label: "العودة في اليوم التالي" });
+  lineChart(document.getElementById("c-play"), [{ name: "دقائق", color: C.teal, points: lastDays(play, n) }], { band: BENCH.playtime, goal: GOAL.playtime, unit: " د", digits: 1, label: "دقائق اللعب" });
+}
+function trendWord(cur, prev) {
+  if (cur == null || !prev) return "";
+  const ch = ((cur - prev) / prev) * 100;
+  if (Math.abs(ch) < 3) return "بلا تغيير يُذكر";
+  return ch > 0 ? `بزيادة ${fmt(ch)}%` : `بانخفاض ${fmt(Math.abs(ch))}%`;
+}
+function trendLine(cur, prev, isPct) {
+  if (cur == null || prev == null || prev === 0) return "";
+  const ch = isPct ? cur - prev : ((cur - prev) / Math.abs(prev)) * 100;
+  if (Math.abs(ch) < (isPct ? 0.2 : 3)) return "➖ بلا تغيير يُذكر عن الفترة السابقة";
+  const txt = isPct ? `${fmt(Math.abs(ch), 1)} نقطة` : `${fmt(Math.abs(ch))}%`;
+  return ch > 0 ? `<b class="up">▲ ${txt}</b> عن الفترة السابقة` : `<b class="down">▼ ${txt}</b> عن الفترة السابقة`;
+}
+
+function renderEmpty(reason) {
+  document.getElementById("meta").textContent = "لم تصل البيانات بعد";
+  document.getElementById("app").innerHTML = `<div class="empty"><h2 style="margin-top:0">الصفحة جاهزة، وتنتظر أول تحديث للبيانات</h2>
+  <p>${esc(reason)}</p>
+  <ol>
+    <li>أنشئي مفتاح Open Cloud من <b>create.roblox.com ← Open Cloud ← API Keys</b>، وأضيفي اللعبة مع صلاحية <b>universe.analytics:read</b>.</li>
+    <li>في هذا المستودع على GitHub: <b>Settings ← Secrets and variables ← Actions ← New repository secret</b>، بالاسم <b>ROBLOX_API_KEY</b> والقيمة المفتاح.</li>
+    <li>من تبويب <b>Actions</b> اختاري «Update game analytics» ثم <b>Run workflow</b>. بعد دقيقتين تقريبًا تظهر الأرقام هنا.</li>
+  </ol></div>`;
+}
+
+async function load() {
+  try { EVENTS = await (await fetch("data/events.json", { cache: "no-store" })).json(); } catch { EVENTS = []; }
+  try {
+    const res = await fetch("data/analytics.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("لم يُنشأ ملف البيانات بعد.");
+    DATA = await res.json();
+  } catch (e) { renderEmpty(e.message || "لم يُنشأ ملف البيانات بعد."); return; }
+  const when = new Date(DATA.updatedAt);
+  const hours = (Date.now() - when) / 36e5;
+  const health = hours < 30 ? '<span class="pill good">● محدّثة</span>' : hours < 72 ? '<span class="pill warn">● متأخرة</span>' : '<span class="pill bad">● لم تُحدَّث منذ أيام</span>';
+  document.getElementById("meta").innerHTML = `آخر تحديث: ${when.toLocaleString("ar-SA-u-nu-latn-ca-gregory", { dateStyle: "long", timeStyle: "short", timeZone: "Asia/Riyadh" })} &nbsp; ${health}`;
+  render();
+}
+document.querySelectorAll(".controls button").forEach((b) => b.addEventListener("click", () => {
+  DAYS = Number(b.dataset.days);
+  document.querySelectorAll(".controls button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  if (DATA) render();
+}));
+let rT; addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => DATA && render(), 200); });
+load();
+</script>
+</body>
+</html>

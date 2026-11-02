@@ -1,0 +1,34 @@
+name: Update game analytics
+
+on:
+  schedule:
+    # every day at 06:17 Riyadh time (03:17 UTC), after Roblox finishes yesterday's numbers
+    - cron: "17 3 * * *"
+  workflow_dispatch: {} # "Run workflow" button for an update right now
+
+permissions:
+  contents: write
+
+concurrency:
+  group: analytics
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Read Roblox analytics
+        env:
+          ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+        run: node scripts/fetch-analytics.mjs
+      - name: Save the new numbers
+        run: |
+          git config user.name "analytics-bot"
+          git config user.email "analytics-bot@users.noreply.github.com"
+          git add data/analytics.json
+          git diff --cached --quiet || git commit -m "Daily analytics $(date -u +%F)"
+          git push
