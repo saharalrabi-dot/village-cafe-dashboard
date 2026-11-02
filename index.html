@@ -2,98 +2,150 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#3b1d8f">
 <title>أداء مقهى القرية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   color-scheme: light;
-  --bg:#ffffff; --card:#ffffff; --soft:#f6f4fb; --line:#e7e3f0;
-  --ink:#1d1630; --ink2:#4b4560; --muted:#7a7490;
-  --purple:#7D2AE8; --teal:#00A3AA; --orange:#E8701F;
-  --purple-soft:#f1e8fd; --teal-soft:#e2f6f7; --orange-soft:#fdeee3;
-  --good:#1f8a4c; --good-soft:#e5f5ec; --warn:#b26a00; --warn-soft:#fdf2dc; --bad:#c23b3b; --bad-soft:#fbe7e7;
-  --band:rgba(0,163,170,.10);
+  --sky1:#3b1d8f; --sky2:#6a2fd6; --sky3:#1aa7d6;
+  --card:#ffffff; --soft:#f3efff; --line:#e3dcf5;
+  --ink:#1b1238; --ink2:#463d63; --muted:#7a7194; --edge:#1b1238;
+  --purple:#7D2AE8; --teal:#00A3AA; --orange:#E8701F; --yellow:#FFC93C; --green:#2fbf5b; --red:#e5484d;
+  --good:#1f8a4c; --good-soft:#dff7e7; --warn:#a35f00; --warn-soft:#fff1cc; --bad:#c23b3b; --bad-soft:#ffe1e1;
+  --display:"Baloo Bhaijaan 2",Tajawal,"Segoe UI",Tahoma,sans-serif;
+  --body:Tajawal,"Segoe UI",Tahoma,sans-serif;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Tajawal,"Segoe UI",Tahoma,sans-serif;font-size:17px;line-height:1.7}
-.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 60px}
-header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between;padding:8px 0 18px;border-bottom:2px solid var(--line)}
-.eyebrow{font-weight:700;color:var(--purple);font-size:15px}
-h1{margin:2px 0 0;font-size:clamp(28px,4.4vw,40px);font-weight:800;line-height:1.25}
-.meta{color:var(--ink2);font-size:15px}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-weight:700;font-size:14px;border:1.5px solid currentColor}
-.pill.good{color:var(--good);background:var(--good-soft)} .pill.warn{color:var(--warn);background:var(--warn-soft)} .pill.bad{color:var(--bad);background:var(--bad-soft)}
-.controls{display:flex;gap:6px;margin-top:6px}
-.controls button{font:inherit;font-size:15px;font-weight:700;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer}
-.controls button[aria-pressed="true"]{background:var(--purple);border-color:var(--purple);color:#fff}
-h2{font-size:24px;font-weight:800;margin:34px 0 12px}
-h2 small{display:block;font-size:15px;font-weight:500;color:var(--ink2)}
-.summary{background:var(--soft);border:1.5px solid var(--line);border-radius:18px;padding:18px 20px;margin-top:22px}
-.summary h2{margin:0 0 8px;font-size:22px}
-.summary ul{margin:0;padding-inline-start:22px}
-.summary li{margin:6px 0;font-size:18px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
-.kpi{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.kpi .label{font-weight:700;color:var(--ink2);font-size:16px;display:flex;align-items:center;gap:8px}
-.kpi .label i{width:10px;height:10px;border-radius:3px;display:inline-block}
-.kpi .value{font-size:36px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
-.kpi .value small{font-size:17px;font-weight:700;color:var(--ink2)}
-.kpi .trend{font-size:15px;color:var(--ink2)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--sky1)}
+body{margin:0;color:var(--ink);font-family:var(--body);font-size:16.5px;line-height:1.65;min-height:100vh;
+  background:
+    linear-gradient(rgba(255,255,255,.06) 2px,transparent 2px) 0 0/48px 48px,
+    linear-gradient(90deg,rgba(255,255,255,.06) 2px,transparent 2px) 0 0/48px 48px,
+    linear-gradient(170deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 130%) fixed;
+  padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:1120px;margin:0 auto;padding:12px 14px 48px}
+/* chunky game panel: thick dark edge + solid bottom "3D" shadow */
+.panel,.summary,.kpi,.chart-card,.todo,.glossary div,.empty{background:var(--card);border:3px solid var(--edge);border-radius:18px;box-shadow:0 5px 0 var(--edge)}
+/* top bar like a game HUD */
+header{position:sticky;top:0;z-index:5;margin:0 -14px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+  background:linear-gradient(180deg,rgba(59,29,143,.97),rgba(59,29,143,.88));backdrop-filter:blur(6px);
+  display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;border-bottom:3px solid var(--edge)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{flex:none;width:46px;height:46px;border-radius:12px;background:var(--yellow);border:3px solid var(--edge);box-shadow:0 3px 0 var(--edge);display:grid;place-items:center;font-size:24px;transform:rotate(-6deg)}
+.eyebrow{font-family:var(--display);font-weight:700;color:var(--yellow);font-size:14px;line-height:1.2}
+h1{margin:0;font-family:var(--display);font-size:clamp(19px,4.6vw,30px);font-weight:800;line-height:1.25;color:#fff;text-shadow:0 2px 0 var(--edge)}
+.meta{color:#e9e2ff;font-size:14px;line-height:1.5}
+.meta.dark,.chart-card .meta,.kpi .meta,.empty .meta,.summary .meta{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:999px;font-weight:800;font-size:13px;border:2px solid var(--edge);font-family:var(--body)}
+.pill.good{color:#0d5a2d;background:#9cf0b6} .pill.warn{color:#6b3c00;background:var(--yellow)} .pill.bad{color:#fff;background:var(--red)}
+.controls{display:flex;gap:6px}
+.controls button{font-family:var(--display);font-size:15px;font-weight:800;padding:6px 14px 4px;border-radius:12px;border:3px solid var(--edge);background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 var(--edge);min-height:40px;transition:transform .08s}
+.controls button:active{transform:translateY(3px);box-shadow:none}
+.controls button[aria-pressed="true"]{background:var(--green);color:#fff;text-shadow:0 1px 0 var(--edge)}
+h2{font-family:var(--display);font-size:24px;font-weight:800;margin:28px 0 12px;color:#fff;text-shadow:0 2px 0 var(--edge);line-height:1.3}
+h2 small{display:block;font-family:var(--body);font-size:14.5px;font-weight:700;color:#e9e2ff;text-shadow:none}
+.summary{padding:16px 18px;margin-top:18px;background:linear-gradient(180deg,#fff,#fbf8ff)}
+.summary h2{margin:0 0 6px;font-size:22px;color:var(--ink);text-shadow:none}
+.summary ul{margin:0;padding:0;list-style:none}
+.summary li{margin:8px 0;font-size:17px;padding-inline-start:30px;position:relative}
+.summary li::before{content:"⭐";position:absolute;inset-inline-start:0;top:0}
+.summary b{color:var(--purple)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+.kpi{padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0;position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;inset:0 0 auto 0;height:7px;background:var(--accent,var(--purple))}
+.kpi .label{font-family:var(--display);font-weight:800;color:var(--ink);font-size:16.5px;display:flex;align-items:center;gap:8px;line-height:1.3;margin-top:4px}
+.kpi .icon{flex:none;width:38px;height:38px;border-radius:10px;border:2.5px solid var(--edge);background:var(--accent,var(--purple));display:grid;place-items:center;font-size:19px;box-shadow:0 2px 0 var(--edge)}
+.kpi .value{font-family:var(--display);font-size:38px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.kpi .value small{font-family:var(--body);font-size:16px;font-weight:800;color:var(--ink2)}
+.kpi .trend{font-size:14.5px;color:var(--ink2);font-weight:700}
 .kpi .trend b.up{color:var(--good)} .kpi .trend b.down{color:var(--bad)}
-.kpi .why{font-size:15px;color:var(--ink2);border-top:1px dashed var(--line);padding-top:8px;margin-top:auto}
-.kpi .goal{font-size:14px;color:var(--muted)}
-.chart-card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px 10px;margin-bottom:16px}
-.chart-card h3{margin:0;font-size:20px;font-weight:800}
-.chart-card p.desc{margin:2px 0 8px;color:var(--ink2);font-size:15.5px}
-.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:15px;color:var(--ink2);margin-bottom:4px}
+.xp{height:16px;border:2.5px solid var(--edge);border-radius:999px;background:#ece6fb;overflow:hidden;position:relative}
+.xp i{display:block;height:100%;background:linear-gradient(180deg,#ffe38a,var(--yellow));border-inline-end:2.5px solid var(--edge);min-width:6px}
+.xp i.done{background:linear-gradient(180deg,#9cf0b6,var(--green))}
+.goal{font-size:13.5px;color:var(--muted);font-weight:700}
+.kpi details{border-top:2px dashed var(--line);padding-top:6px;margin-top:auto}
+.kpi summary{cursor:pointer;font-weight:800;color:var(--purple);font-size:14.5px;list-style:none;min-height:30px;display:flex;align-items:center}
+.kpi summary::-webkit-details-marker{display:none}
+.kpi summary::before{content:"❓";margin-inline-end:6px}
+.kpi .why{font-size:15px;color:var(--ink2);margin:4px 0 0}
+.chart-card{padding:14px 14px 8px;margin-bottom:16px;min-width:0}
+.chart-card h3{margin:0;font-family:var(--display);font-size:20px;font-weight:800;line-height:1.3}
+.chart-card p.desc{margin:2px 0 8px;color:var(--ink2);font-size:15px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:4px}
 .legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
-.legend i.band{height:12px;background:var(--band);border:1px dashed var(--teal)}
-.chart{position:relative;width:100%}
-.chart svg{display:block;width:100%;height:auto;overflow:visible}
-.chart .tip{position:absolute;pointer-events:none;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;font-size:14.5px;box-shadow:0 6px 20px rgba(29,22,48,.12);white-space:nowrap;display:none;z-index:2}
-.chart .tip b{display:block;font-size:13.5px;color:var(--ink2);font-weight:700}
+.legend i{width:16px;height:6px;border-radius:3px;display:inline-block;border:1.5px solid var(--edge)}
+.legend i.band{height:12px;background:rgba(0,163,170,.18);border:1.5px dashed var(--teal)}
+.chart{position:relative;width:100%;touch-action:pan-y}
+.chart svg{display:block;width:100%;height:auto;overflow:visible;direction:ltr} /* coordinates are laid out by hand, so anchors are left-to-right */
+.chart .tip{position:absolute;pointer-events:none;background:#fff;border:2.5px solid var(--edge);border-radius:12px;padding:6px 10px;font-size:14px;box-shadow:0 3px 0 var(--edge);white-space:nowrap;display:none;z-index:2;font-weight:700}
+.chart .tip b{display:block;font-size:13px;color:var(--ink2)}
+.tscroll{overflow-x:auto;max-width:100%}
+.tscroll td:first-child{white-space:normal}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px}
-details.table{margin:4px 0 6px;font-size:15px}
-details.table summary{cursor:pointer;color:var(--purple);font-weight:700}
-details.table .scroll{overflow-x:auto;max-height:280px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-top:6px}
+details.table{margin:4px 0 6px;font-size:14.5px}
+details.table summary{cursor:pointer;color:var(--purple);font-weight:800;min-height:34px;display:flex;align-items:center}
+details.table .scroll{overflow-x:auto;max-height:280px;overflow-y:auto;border:2px solid var(--edge);border-radius:10px;margin-top:6px}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:start;white-space:nowrap}
-th{background:var(--soft);position:sticky;top:0}
-.bars .row{display:grid;grid-template-columns:minmax(110px,170px) 1fr auto;gap:10px;align-items:center;margin:8px 0;font-size:16px}
-.bars .track{height:22px;background:var(--soft);border-radius:6px;overflow:hidden}
-.bars .fill{height:100%;background:var(--purple);border-radius:6px 0 0 6px;min-width:3px}
-.bars .num{font-weight:800;font-variant-numeric:tabular-nums}
-.todo{background:var(--orange-soft);border:1.5px solid #f6c9a6;border-radius:18px;padding:16px 20px}
-.todo ol{margin:0;padding-inline-start:24px} .todo li{margin:8px 0;font-size:17.5px}
-.glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-.glossary div{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:15.5px}
-.glossary b{display:block;font-size:16.5px}
-.empty{background:var(--purple-soft);border:1.5px solid #d8c2fa;border-radius:18px;padding:20px;margin-top:22px}
+th,td{padding:7px 10px;border-bottom:1.5px solid var(--line);text-align:start;white-space:nowrap}
+th{background:var(--soft);position:sticky;top:0;font-family:var(--display)}
+.bars .row{display:grid;grid-template-columns:minmax(96px,170px) 1fr auto;gap:8px;align-items:center;margin:10px 0;font-size:15px;font-weight:700}
+.bars .track{height:22px;background:#ece6fb;border:2.5px solid var(--edge);border-radius:8px;overflow:hidden}
+.bars .fill{height:100%;background:linear-gradient(180deg,#a978ff,var(--purple));border-inline-end:2.5px solid var(--edge);min-width:4px}
+.bars .num{font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bars .num .meta{color:var(--muted);font-family:var(--body)}
+.todo{padding:14px 18px;background:linear-gradient(180deg,#fff7e0,#fff)}
+.todo ol{margin:0;padding:0;list-style:none;counter-reset:q}
+.todo li{margin:12px 0;font-size:16.5px;padding-inline-start:44px;position:relative;counter-increment:q}
+.todo li::before{content:counter(q);position:absolute;inset-inline-start:0;top:0;width:32px;height:32px;border-radius:9px;background:var(--orange);color:#fff;border:2.5px solid var(--edge);box-shadow:0 2px 0 var(--edge);display:grid;place-items:center;font-family:var(--display);font-weight:800}
+.glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.glossary div{padding:12px 14px;font-size:15px}
+.glossary b{display:block;font-family:var(--display);font-size:17px}
+.empty{padding:20px;margin-top:20px}
+.empty h2{color:var(--ink);text-shadow:none}
 .empty ol li{margin:8px 0}
-.err{color:var(--warn);font-size:14.5px}
-footer{margin-top:40px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:14px}
-@media (max-width:560px){body{font-size:16px}.kpi .value{font-size:30px}.bars .row{grid-template-columns:100px 1fr auto}}
+.err{color:#fff;font-size:14px;font-weight:700}
+footer{margin-top:34px;color:#e9e2ff;font-size:13.5px;border-top:2px solid rgba(255,255,255,.25);padding-top:12px}
+@media (max-width:600px){
+  header{position:relative;gap:8px;padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:10px}
+  .logo{width:38px;height:38px;font-size:20px}
+  .eyebrow{display:none}
+  .controls button{min-height:38px;padding:4px 8px 2px}
+  .controls{width:100%}
+  .controls button{flex:1}
+  h2{font-size:21px;margin-top:24px}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:12px 12px 10px}
+  .kpi .label{font-size:14.5px}
+  .kpi .icon{width:32px;height:32px;font-size:16px}
+  .kpi .value{font-size:28px}
+  .kpi .value small{font-size:13px}
+  .kpi .trend,.goal{font-size:12.5px}
+  .bars .row{grid-template-columns:1fr auto;gap:2px 8px}
+  .bars .row .track{grid-column:1 / -1;grid-row:2}
+  .summary li{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){.controls button{transition:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <div class="eyebrow">لوحة الأداء · روبلكس</div>
-      <h1>البقاء على قيد الحياة في مقهى القرية</h1>
-      <div class="meta" id="meta">جارٍ تحميل البيانات…</div>
-    </div>
-    <div>
-      <div class="meta" style="text-align:end">الفترة المعروضة</div>
-      <div class="controls" role="group" aria-label="الفترة">
-        <button data-days="7">7 أيام</button>
-        <button data-days="28" aria-pressed="true">28 يومًا</button>
-        <button data-days="90">90 يومًا</button>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">☕</div>
+      <div style="min-width:0">
+        <div class="eyebrow">لوحة الأداء · روبلكس</div>
+        <h1>البقاء على قيد الحياة في مقهى القرية</h1>
+        <div class="meta" id="meta">جارٍ تحميل البيانات…</div>
       </div>
+    </div>
+    <div class="controls" role="group" aria-label="الفترة المعروضة">
+      <button data-days="7">7 أيام</button>
+      <button data-days="28" aria-pressed="true">28 يومًا</button>
+      <button data-days="90">90 يومًا</button>
     </div>
   </header>
 
@@ -177,7 +229,7 @@ function sourceName(raw) {
 
 // ------------------------------------------------------------------ line chart (SVG + hover)
 function lineChart(el, series, opt = {}) {
-  const W = Math.max(300, el.clientWidth || 600), H = opt.height || 240;
+  const W = Math.max(280, el.clientWidth || 600), H = opt.height || (W < 520 ? 200 : 240);
   const m = { t: 12, r: 12, b: 30, l: 44 };
   const all = series.flatMap((s) => s.points);
   if (!all.length) { el.innerHTML = '<p class="meta">لا توجد بيانات لهذه الفترة بعد.</p>'; return; }
@@ -202,7 +254,8 @@ function lineChart(el, series, opt = {}) {
   }
   if (opt.goal) {
     svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(opt.goal)}" y2="${y(opt.goal)}" stroke="${C.orange}" stroke-width="2" stroke-dasharray="6 5"/>`;
-    svg += `<text x="${W - m.r - 4}" y="${y(opt.goal) - 6}" font-size="12.5" font-weight="700" fill="${C.ink2}" text-anchor="end">الهدف ${fmt(opt.goal)}${opt.unit === "%" ? "%" : " د"}</text>`;
+    // Arabic label: right-to-left run, anchored to the chart's right edge
+    svg += `<text x="${W - m.r - 4}" y="${y(opt.goal) - 6}" font-size="12.5" font-weight="800" fill="${C.ink2}" direction="rtl" text-anchor="start">الهدف ${fmt(opt.goal)}${opt.unit === "%" ? "٪" : " دقيقة"}</text>`;
   }
   // events (ad campaigns, updates)
   for (const e of EVENTS) {
@@ -211,17 +264,19 @@ function lineChart(el, series, opt = {}) {
     svg += `<line x1="${xx}" x2="${xx}" y1="${m.t}" y2="${H - m.b}" stroke="${C.muted}" stroke-dasharray="2 4"/><text x="${xx}" y="${m.t + 10}" font-size="15" text-anchor="middle">📣</text>`;
   }
   // x labels (a few)
-  const step = Math.max(1, Math.ceil(dates.length / 6));
+  const step = Math.max(1, Math.ceil(dates.length / (W < 520 ? 4 : 6)));
   dates.forEach((t, i) => {
     const last = i === dates.length - 1;
-    if ((i % step === 0 && (last || dates.length - 1 - i >= step / 2 + 0.5)) || last) svg += `<text x="${x(t)}" y="${H - 8}" font-size="12" fill="${C.muted}" text-anchor="middle">${dayName(t)}</text>`;
+    // edge labels hug the chart edge so they never stick out on a phone (RTL: oldest at the right)
+    const anchor = dates.length > 1 && i === 0 ? "end" : last && dates.length > 1 ? "start" : "middle";
+    if ((i % step === 0 && (last || dates.length - 1 - i >= step)) || last) svg += `<text x="${x(t)}" y="${H - 8}" font-size="12" fill="${C.muted}" text-anchor="${anchor}" direction="ltr" unicode-bidi="plaintext">${dayName(t)}</text>`;
   });
   // lines
   for (const s of series) {
     if (!s.points.length) continue;
     const d = s.points.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
-    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-    if (s.points.length < 40) for (const p of s.points) svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3.2" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`;
+    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (s.points.length < 40) for (const p of s.points) svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3.6" fill="${s.color}" stroke="#1b1238" stroke-width="1.5"/>`;
   }
   svg += `<line class="cross" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="${C.ink2}" stroke-width="1" visibility="hidden"/>`;
   svg += `<rect class="hit" x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H}" fill="transparent"/></svg><div class="tip"></div>`;
@@ -246,6 +301,7 @@ function lineChart(el, series, opt = {}) {
   const hide = () => { tip.style.display = "none"; cross.setAttribute("visibility", "hidden"); };
   el.querySelector(".hit").addEventListener("mousemove", move);
   el.querySelector(".hit").addEventListener("touchstart", move, { passive: true });
+  el.querySelector(".hit").addEventListener("touchmove", move, { passive: true });
   el.addEventListener("mouseleave", hide);
 }
 function niceMax(v) {
@@ -307,22 +363,27 @@ function render() {
   if (!lines.length) lines.push("لا توجد أرقام كافية بعد. ستظهر الخلاصة بعد أول تحديث ناجح.");
 
   // ---------------- KPI tiles
-  const tile = (o) => `<div class="kpi">
-    <div class="label"><i style="background:${o.color}"></i>${o.label}</div>
+  // a game "stat card": icon, big number, status badge, XP-style bar toward the goal
+  const tile = (o) => {
+    const prog = o.progress != null ? Math.max(0, Math.min(100, o.progress)) : null;
+    return `<div class="kpi" style="--accent:${o.color}">
+    <div class="label"><span class="icon" aria-hidden="true">${o.icon}</span>${o.label}</div>
     <div class="value">${o.value}${o.unit ? `<small> ${o.unit}</small>` : ""}</div>
     ${o.status ? `<div><span class="pill ${o.status.k}">${o.status.t}</span></div>` : ""}
-    <div class="trend">${o.trend || ""}</div>
+    ${prog != null ? `<div class="xp" role="img" aria-label="${fmt(prog)}% من الهدف"><i class="${prog >= 100 ? "done" : ""}" style="width:${prog}%"></i></div>` : ""}
     ${o.goal ? `<div class="goal">${o.goal}</div>` : ""}
-    <div class="why">${o.why}</div></div>`;
+    ${o.trend ? `<div class="trend">${o.trend}</div>` : ""}
+    <details><summary>ماذا يعني؟</summary><p class="why">${o.why}</p></details></div>`;
+  };
   const tiles = [
-    tile({ label: "العودة في اليوم التالي", color: C.purple, value: K.d1 == null ? "—" : fmt(K.d1, 1) + "%", status: status(K.d1, BENCH.d1), trend: trendLine(K.d1, K.d1Prev, true), goal: `المعدل: 6–12% · هدفنا ${GOAL.d1}%+`, why: "أهم رقم: كم لاعبًا جديدًا عاد ليلعب في اليوم التالي. إذا ارتفع، فاللعبة ممتعة ويستحق الصرف على الإعلانات." }),
-    tile({ label: "دقائق اللعب لكل لاعب", color: C.teal, value: fmt(K.play, 1), unit: "دقيقة", status: status(K.play, BENCH.playtime), trend: trendLine(K.play, K.playPrev), goal: `المعدل: 13–28 دقيقة · هدفنا ${GOAL.playtime}+`, why: "كم يبقى اللاعب في اللعبة يوميًا. إذا كان قليلًا، فاللاعب يغادر قبل الوصول للجزء الممتع (الليل)." }),
-    tile({ label: "لاعبون يوميًا", color: C.orange, value: fmt(K.dau), unit: "لاعب", trend: trendLine(K.dau, K.dauPrev), why: "متوسط عدد اللاعبين المختلفين كل يوم. يقفز مع الإعلانات، والمهم أن يبقى مرتفعًا بعدها." }),
-    tile({ label: "لاعبون جدد", color: C.purple, value: fmt(K.newP), unit: "لاعب", trend: trendLine(K.newP, K.newPrev), why: `عدد من جرّب اللعبة لأول مرة خلال آخر ${n} يومًا.` }),
-    tile({ label: "العودة بعد أسبوع", color: C.teal, value: K.d7 == null ? "—" : fmt(K.d7, 2) + "%", status: status(K.d7, BENCH.d7), goal: "المعدل: 0.5–2%", why: "من بقي يلعب بعد 7 أيام. هؤلاء هم جمهور اللعبة الحقيقي." }),
-    tile({ label: "الزيارات", color: C.orange, value: fmt(K.visits), unit: "جلسة", trend: trendLine(K.visits, K.visitsPrev), why: "عدد مرات الدخول إلى اللعبة، بما فيها تكرار نفس اللاعب." }),
+    tile({ icon: "🔁", progress: K.d1 == null ? null : (K.d1 / GOAL.d1) * 100, label: "العودة في اليوم التالي", color: C.purple, value: K.d1 == null ? "—" : fmt(K.d1, 1) + "%", status: status(K.d1, BENCH.d1), trend: trendLine(K.d1, K.d1Prev, true), goal: `المعدل: 6–12% · هدفنا ${GOAL.d1}%+`, why: "أهم رقم: كم لاعبًا جديدًا عاد ليلعب في اليوم التالي. إذا ارتفع، فاللعبة ممتعة ويستحق الصرف على الإعلانات." }),
+    tile({ icon: "⏱️", progress: K.play == null ? null : (K.play / GOAL.playtime) * 100, label: "دقائق اللعب لكل لاعب", color: C.teal, value: fmt(K.play, 1), unit: "دقيقة", status: status(K.play, BENCH.playtime), trend: trendLine(K.play, K.playPrev), goal: `المعدل: 13–28 دقيقة · هدفنا ${GOAL.playtime}+`, why: "كم يبقى اللاعب في اللعبة يوميًا. إذا كان قليلًا، فاللاعب يغادر قبل الوصول للجزء الممتع (الليل)." }),
+    tile({ icon: "👥", label: "لاعبون يوميًا", color: C.orange, value: fmt(K.dau), unit: "لاعب", trend: trendLine(K.dau, K.dauPrev), why: "متوسط عدد اللاعبين المختلفين كل يوم. يقفز مع الإعلانات، والمهم أن يبقى مرتفعًا بعدها." }),
+    tile({ icon: "🆕", label: "لاعبون جدد", color: "#2fbf5b", value: fmt(K.newP), unit: "لاعب", trend: trendLine(K.newP, K.newPrev), why: `عدد من جرّب اللعبة لأول مرة خلال آخر ${n} يومًا.` }),
+    tile({ icon: "📅", progress: K.d7 == null ? null : (K.d7 / BENCH.d7[0]) * 100, label: "العودة بعد أسبوع", color: C.teal, value: K.d7 == null ? "—" : fmt(K.d7, 2) + "%", status: status(K.d7, BENCH.d7), goal: "المعدل: 0.5–2%", why: "من بقي يلعب بعد 7 أيام. هؤلاء هم جمهور اللعبة الحقيقي." }),
+    tile({ icon: "🚪", label: "الزيارات", color: "#1aa7d6", value: fmt(K.visits), unit: "جلسة", trend: trendLine(K.visits, K.visitsPrev), why: "عدد مرات الدخول إلى اللعبة، بما فيها تكرار نفس اللاعب." }),
   ];
-  if (K.revenue != null) tiles.push(tile({ label: "الأرباح", color: C.purple, value: fmt(K.revenue), unit: "روبوكس", why: `مجموع ما صرفه اللاعبون في اللعبة خلال آخر ${n} يومًا.` }));
+  if (K.revenue != null) tiles.push(tile({ icon: "💰", label: "الأرباح", color: "#FFC93C", value: fmt(K.revenue), unit: "روبوكس", why: `مجموع ما صرفه اللاعبون في اللعبة خلال آخر ${n} يومًا.` }));
 
   // ---------------- what to do
   const todo = [];
@@ -338,7 +399,7 @@ function render() {
 
   // D1 by source (last 28 days average)
   const d1src = (M.d1BySource || []).map((s) => ({ name: sourceName(s.key), raw: s.key, v: avg(asPercent(s.points)) })).filter((s) => s.v != null && !/total/i.test(s.raw)).sort((a, b) => b.v - a.v);
-  const d1srcTable = d1src.length ? `<table><thead><tr><th>المصدر</th><th>العودة في اليوم التالي</th></tr></thead><tbody>${d1src.map((s) => `<tr><td>${esc(s.name)}</td><td><b>${pct(s.v)}</b></td></tr>`).join("")}</tbody></table>` : "";
+  const d1srcTable = d1src.length ? `<div class="tscroll"><table><thead><tr><th>المصدر</th><th>العودة في اليوم التالي</th></tr></thead><tbody>${d1src.map((s) => `<tr><td>${esc(s.name)}</td><td><b>${pct(s.v)}</b></td></tr>`).join("")}</tbody></table></div>` : "";
 
   const errs = Object.keys(DATA.errors || {});
   app.innerHTML = `
