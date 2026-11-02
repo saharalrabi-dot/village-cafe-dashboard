@@ -134,6 +134,15 @@ function lastDays(points, n) {
   return points.filter((p) => p.t >= s);
 }
 const avg = (pts) => pts.length ? pts.reduce((a, p) => a + p.v, 0) / pts.length : null;
+// a rate averaged over days, weighted by that day's new players (as Roblox does): a day with
+// 1 new player must not count as much as a day with 150
+function wavg(pts, weights) {
+  if (!pts.length) return null;
+  const w = new Map((weights || []).map((p) => [p.t, p.v]));
+  let num = 0, den = 0;
+  for (const p of pts) { const k = w.get(p.t); if (k > 0) { num += p.v * k; den += k; } }
+  return den > 0 ? num / den : avg(pts);
+}
 const sum = (pts) => pts.length ? pts.reduce((a, p) => a + p.v, 0) : null;
 function windows(points, n) { // this period vs the period before it
   if (!points || !points.length) return [[], []];
@@ -274,7 +283,7 @@ function render() {
   const K = {
     dau: avg(dCur), dauPrev: avg(dPrev),
     newP: sum(nCur), newPrev: sum(nPrev),
-    d1: avg(r1Cur), d1Prev: avg(r1Prev), d7: avg(r7Cur),
+    d1: wavg(r1Cur, newS), d1Prev: wavg(r1Prev, newS), d7: wavg(r7Cur, newS),
     play: avg(pCur), playPrev: avg(pPrev),
     visits: sum(vCur), visitsPrev: sum(vPrev),
     revenue: sum(revCur),
