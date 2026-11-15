@@ -496,9 +496,23 @@ function liveSection() {
   const lvBars = `<div class="bars lvbars">${lvKeys.map((l) => `<div class="row"><div>مستوى ${l}</div><div class="track"><div class="fill" style="width:${(levels[l] / maxLv) * 100}%"></div></div><div class="num">${levels[l]}</div></div>`).join("")}</div>`;
   const topLv = lvKeys[lvKeys.length - 1];
 
+  // per-player totals
+  const order = [...new Set(ev.map((e) => e.h))];
+  const label = (h) => "لاعب " + (order.indexOf(h) + 1);
+  const per = {};
+  leaves.forEach((e) => { const p = (per[e.h] ||= { h: e.h, s: 0, n: 0, max: 0, lv: 1, nights: 0, last: 0 }); p.s += e.s; p.n++; p.max = Math.max(p.max, e.s); p.lv = Math.max(p.lv, e.lv); p.nights = Math.max(p.nights, e.n); p.last = Math.max(p.last, e.t); });
+  const inGame = new Set(joins.filter((j) => Date.now() / 1000 - j.t < 4 * 3600 && !leaves.some((l) => l.h === j.h && l.t >= j.t)).map((j) => j.h));
+  inGame.forEach((h) => { per[h] ||= { h, s: 0, n: 0, max: 0, lv: Math.max(...ev.filter((e) => e.h === h).map((e) => e.lv)), nights: 0, last: 0 }; });
+  const firstJoin = {}; joins.forEach((j) => { firstJoin[j.h] ||= j; });
+  const players = Object.values(per).sort((a, b) => b.s - a.s);
+  const mm = (sec) => sec >= 3600 ? fmt(sec / 3600, 1) + " س" : fmt(sec / 60, 1) + " د";
+  const pRows = players.slice(0, 40).map((p) => `<tr><td>${label(p.h)}${inGame.has(p.h) ? ' <span class="dot"></span>' : ""}<br><span class="meta">${firstJoin[p.h] && firstJoin[p.h].isNew ? "جديد" : "عائد"}</span></td><td><b>${mm(p.s)}</b></td><td>${p.n}</td><td>${mm(p.max)}</td><td>${p.lv}</td><td>${p.nights}</td></tr>`).join("");
+  const pTable = pRows ? `<div class="tscroll"><table><thead><tr><th>اللاعب</th><th>مجموع وقته</th><th>مرات الدخول</th><th>أطول جلسة</th><th>المستوى</th><th>الليالي</th></tr></thead><tbody>${pRows}</tbody></table></div>` : '<p class="meta">لم يغادر أحد بعد.</p>';
+  const playersCard = `<div class="chart-card" style="margin-top:14px"><h3>كل لاعب وكم لعب</h3><p class="desc">مجموع وقت كل لاعب في كل زياراته، مرتبًا من الأطول. النقطة الخضراء = داخل اللعبة الآن (ويُحسب وقته بعد خروجه).</p>${pTable}</div>`;
+
   // recent sessions
-  const rows = leaves.slice(-15).reverse().map((e) => `<tr><td>${esc(riyadhTime(e.t))}</td><td><b>${fmt(e.s / 60, 1)} د</b></td><td>${e.lv}</td><td>${e.n}</td></tr>`).join("");
-  const table = rows ? `<div class="tscroll"><table><thead><tr><th>وقت الخروج</th><th>المدة</th><th>المستوى</th><th>الليالي</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="meta">لم يغادر أحد بعد.</p>';
+  const rows = leaves.slice(-15).reverse().map((e) => `<tr><td>${label(e.h)}</td><td>${esc(riyadhTime(e.t))}</td><td><b>${fmt(e.s / 60, 1)} د</b></td><td>${e.lv}</td><td>${e.n}</td></tr>`).join("");
+  const table = rows ? `<div class="tscroll"><table><thead><tr><th>اللاعب</th><th>وقت الخروج</th><th>المدة</th><th>المستوى</th><th>الليالي</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="meta">لم يغادر أحد بعد.</p>';
 
   return head + `
   <div class="live-grid">
@@ -511,6 +525,7 @@ function liveSection() {
     <div class="chart-card"><h3>لاعبون يوميًا (مباشر)</h3><p class="desc">عدد اللاعبين المختلفين الذين دخلوا كل يوم.</p>${dayBars}</div>
     <div class="chart-card"><h3>المستويات التي وصل لها اللاعبون</h3><p class="desc">أعلى مستوى بلغه كل لاعب (${total} لاعبًا). أعلى مستوى حتى الآن: ${topLv}. إذا تكدّس اللاعبون في المستوى 1 فهم يغادرون قبل أن يتقدموا.</p>${lvBars}</div>
   </div>
+  ${playersCard}
   <div class="chart-card" style="margin-top:14px"><h3>آخر الجلسات</h3><p class="desc">كم مكث كل لاعب وإلى أي مستوى وصل عند خروجه. (الوسيط: ${median == null ? "—" : fmt(median, 1)} دقيقة)</p>${table}</div>`;
 }
 function trendWord(cur, prev) {
