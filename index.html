@@ -129,6 +129,14 @@ footer{margin-top:34px;color:#e9e2ff;font-size:13.5px;border-top:2px solid rgba(
   .summary li{font-size:16px}
 }
 @media (prefers-reduced-motion:reduce){.controls button{transition:none}}
+
+.live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:12px;margin-bottom:14px}
+.live-stat{background:var(--card);border:3px solid var(--edge);border-radius:16px;box-shadow:0 4px 0 var(--edge);padding:10px 14px}
+.live-stat b{display:block;font-family:var(--display);font-size:30px;line-height:1.2;color:var(--purple)}
+.live-stat span{font-size:14px;color:var(--muted)}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#2fbf63;border:2px solid var(--edge);margin-inline-end:6px}
+.dot.off{background:#b9b3cc}
+.lvbars .row{display:grid;grid-template-columns:70px 1fr 64px;gap:8px;align-items:center;margin:5px 0;font-size:15px}
 </style>
 </head>
 <body>
@@ -405,6 +413,8 @@ function render() {
   app.innerHTML = `
   <section class="summary"><h2>📝 الخلاصة باختصار</h2><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></section>
 
+  ${liveSection()}
+
   <h2>الأرقام الرئيسية<small>متوسط آخر ${n} يومًا، ومقارنة بالـ ${n} يومًا التي قبلها</small></h2>
   <div class="kpis">${tiles.join("")}</div>
 
@@ -445,6 +455,64 @@ function render() {
   lineChart(document.getElementById("c-d1"), [{ name: "العودة", color: C.purple, points: lastDays(d1, n) }], { band: BENCH.d1, goal: GOAL.d1, unit: "%", digits: 1, label: "العودة في اليوم التالي" });
   lineChart(document.getElementById("c-play"), [{ name: "دقائق", color: C.teal, points: lastDays(play, n) }], { band: BENCH.playtime, goal: GOAL.playtime, unit: " د", digits: 1, label: "دقائق اللعب" });
 }
+
+let LIVE = null;
+const riyadhDay = (t) => new Date(t * 1000).toLocaleDateString("en-CA", { timeZone: "Asia/Riyadh" });
+const riyadhTime = (t) => new Date(t * 1000).toLocaleString("ar-SA-u-nu-latn-ca-gregory", { timeZone: "Asia/Riyadh", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+function liveSection() {
+  const ev = (LIVE && LIVE.events) || [];
+  const head = '<h2>🎮 مباشر من اللعبة<small>أحداث الدخول والخروج تصل من اللعبة نفسها، وتتحدّث هنا كل نصف ساعة تقريبًا</small></h2>';
+  if (!ev.length) return head + `<div class="chart-card"><h3>بانتظار أول لاعب</h3><p class="desc">سيظهر هنا عدد اللاعبين ومدة جلساتهم ومستوياتهم بمجرد أن تنشري اللعبة ويدخلها لاعب. (تأكدي من تفعيل Allow HTTP Requests في إعدادات اللعبة.)</p></div>`;
+  const today = riyadhDay(Date.now() / 1000);
+  const uniq = (list) => new Set(list.map((e) => e.h)).size;
+  const joins = ev.filter((e) => e.kind === "join");
+  const leaves = ev.filter((e) => e.kind === "leave");
+  const todayPlayers = uniq(joins.filter((e) => riyadhDay(e.t) === today));
+  const newToday = joins.filter((e) => riyadhDay(e.t) === today && e.isNew).length;
+  const last = ev[ev.length - 1];
+  const fresh = Date.now() / 1000 - last.t < 3 * 3600;
+  const online = fresh ? last.on : 0;
+  const mins = leaves.map((e) => e.s / 60).filter((m) => m >= 0);
+  const avg = mins.length ? mins.reduce((a, b) => a + b, 0) / mins.length : null;
+  const sorted = [...mins].sort((a, b) => a - b);
+  const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] : null;
+  const under1 = mins.length ? Math.round((mins.filter((m) => m < 1).length / mins.length) * 100) : null;
+
+  // players per day (last 14 days)
+  const byDay = {};
+  joins.forEach((e) => { (byDay[riyadhDay(e.t)] ||= new Set()).add(e.h); });
+  const days = Object.keys(byDay).sort().slice(-14);
+  const maxDay = Math.max(1, ...days.map((d) => byDay[d].size));
+  const dayBars = days.length ? `<div class="bars">${days.map((d) => `<div class="row"><div>${esc(d.slice(5))}</div><div class="track"><div class="fill" style="width:${(byDay[d].size / maxDay) * 100}%"></div></div><div class="num">${byDay[d].size}</div></div>`).join("")}</div>` : "";
+
+  // highest level reached per player
+  const best = {};
+  ev.forEach((e) => { best[e.h] = Math.max(best[e.h] || 1, e.lv); });
+  const levels = {};
+  Object.values(best).forEach((l) => { levels[l] = (levels[l] || 0) + 1; });
+  const lvKeys = Object.keys(levels).map(Number).sort((a, b) => a - b);
+  const maxLv = Math.max(1, ...Object.values(levels));
+  const total = Object.keys(best).length;
+  const lvBars = `<div class="bars lvbars">${lvKeys.map((l) => `<div class="row"><div>مستوى ${l}</div><div class="track"><div class="fill" style="width:${(levels[l] / maxLv) * 100}%"></div></div><div class="num">${levels[l]}</div></div>`).join("")}</div>`;
+  const topLv = lvKeys[lvKeys.length - 1];
+
+  // recent sessions
+  const rows = leaves.slice(-15).reverse().map((e) => `<tr><td>${esc(riyadhTime(e.t))}</td><td><b>${fmt(e.s / 60, 1)} د</b></td><td>${e.lv}</td><td>${e.n}</td></tr>`).join("");
+  const table = rows ? `<div class="tscroll"><table><thead><tr><th>وقت الخروج</th><th>المدة</th><th>المستوى</th><th>الليالي</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="meta">لم يغادر أحد بعد.</p>';
+
+  return head + `
+  <div class="live-grid">
+    <div class="live-stat"><b><span class="dot ${online ? "" : "off"}"></span>${online}</b><span>داخل اللعبة الآن${fresh ? "" : " (آخر نشاط: " + esc(riyadhTime(last.t)) + ")"}</span></div>
+    <div class="live-stat"><b>${todayPlayers}</b><span>لاعبون اليوم (${newToday} جدد)</span></div>
+    <div class="live-stat"><b>${avg == null ? "—" : fmt(avg, 1)}</b><span>متوسط مدة الجلسة بالدقائق</span></div>
+    <div class="live-stat"><b>${under1 == null ? "—" : under1 + "%"}</b><span>غادروا خلال أقل من دقيقة</span></div>
+  </div>
+  <div class="grid2">
+    <div class="chart-card"><h3>لاعبون يوميًا (مباشر)</h3><p class="desc">عدد اللاعبين المختلفين الذين دخلوا كل يوم.</p>${dayBars}</div>
+    <div class="chart-card"><h3>المستويات التي وصل لها اللاعبون</h3><p class="desc">أعلى مستوى بلغه كل لاعب (${total} لاعبًا). أعلى مستوى حتى الآن: ${topLv}. إذا تكدّس اللاعبون في المستوى 1 فهم يغادرون قبل أن يتقدموا.</p>${lvBars}</div>
+  </div>
+  <div class="chart-card" style="margin-top:14px"><h3>آخر الجلسات</h3><p class="desc">كم مكث كل لاعب وإلى أي مستوى وصل عند خروجه. (الوسيط: ${median == null ? "—" : fmt(median, 1)} دقيقة)</p>${table}</div>`;
+}
 function trendWord(cur, prev) {
   if (cur == null || !prev) return "";
   const ch = ((cur - prev) / prev) * 100;
@@ -472,6 +540,7 @@ function renderEmpty(reason) {
 
 async function load() {
   try { EVENTS = await (await fetch("data/events.json", { cache: "no-store" })).json(); } catch { EVENTS = []; }
+  try { LIVE = await (await fetch("data/live.json", { cache: "no-store" })).json(); } catch { LIVE = null; }
   try {
     const res = await fetch("data/analytics.json", { cache: "no-store" });
     if (!res.ok) throw new Error("لم يُنشأ ملف البيانات بعد.");

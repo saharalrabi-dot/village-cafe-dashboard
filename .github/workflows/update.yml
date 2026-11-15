@@ -31,4 +31,5 @@ jobs:
           git config user.email "analytics-bot@users.noreply.github.com"
           git add data/analytics.json
           git diff --cached --quiet || git commit -m "Daily analytics $(date -u +%F)"
+          git pull --rebase -q
           git push
