@@ -136,7 +136,11 @@ footer{margin-top:34px;color:#e9e2ff;font-size:13.5px;border-top:2px solid rgba(
 .live-stat span{font-size:14px;color:var(--muted)}
 .dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#2fbf63;border:2px solid var(--edge);margin-inline-end:6px}
 .dot.off{background:#b9b3cc}
-.lvbars .row{display:grid;grid-template-columns:70px 1fr 64px;gap:8px;align-items:center;margin:5px 0;font-size:15px}
+.camp-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.camp-pick button{font-family:var(--display);font-size:14px;font-weight:800;padding:6px 12px 4px;border-radius:12px;border:3px solid var(--edge);background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 var(--edge)}
+.camp-pick button[aria-pressed="true"]{background:var(--orange);color:#fff}
+.verdict{padding:12px 16px;margin-bottom:14px;font-size:16.5px}
+.tnum{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -413,6 +417,8 @@ function render() {
   app.innerHTML = `
   <section class="summary"><h2>📝 الخلاصة باختصار</h2><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></section>
 
+  ${campaignSection(M, newS)}
+
   ${liveSection()}
 
   <h2>الأرقام الرئيسية<small>متوسط آخر ${n} يومًا، ومقارنة بالـ ${n} يومًا التي قبلها</small></h2>
@@ -451,6 +457,8 @@ function render() {
   </div>
   ${errs.length ? `<p class="err">ملاحظة: لم تُقرأ بعض الأرقام في آخر تحديث (${errs.length})، فبقيت قيمها السابقة.</p>` : ""}`;
 
+  { const cp = (M.newPlayersBySource || []).find((x) => /sponsor|ads/i.test(x.key)); const el = document.getElementById("c-camp"); if (el) lineChart(el, [{ name: "من الإعلان", color: C.orange, points: lastDays(cp ? cp.points : [], Math.max(n, 28)) }], { label: "لاعبون جدد من الإعلان" }); }
+  document.querySelectorAll("[data-camp]").forEach((b) => b.addEventListener("click", () => { CAMP_SEL = Number(b.dataset.camp); render(); }));
   lineChart(document.getElementById("c-dau"), [{ name: "لاعبون جدد", color: C.purple, points: lastDays(newS, n) }, { name: "لاعبون عائدون", color: C.orange, points: lastDays(retS, n) }], { label: "اللاعبون يوميًا" });
   lineChart(document.getElementById("c-d1"), [{ name: "العودة", color: C.purple, points: lastDays(d1, n) }], { band: BENCH.d1, goal: GOAL.d1, unit: "%", digits: 1, label: "العودة في اليوم التالي" });
   lineChart(document.getElementById("c-play"), [{ name: "دقائق", color: C.teal, points: lastDays(play, n) }], { band: BENCH.playtime, goal: GOAL.playtime, unit: " د", digits: 1, label: "دقائق اللعب" });
@@ -506,12 +514,12 @@ function liveSection() {
   const firstJoin = {}; joins.forEach((j) => { firstJoin[j.h] ||= j; });
   const players = Object.values(per).sort((a, b) => b.s - a.s);
   const mm = (sec) => sec >= 3600 ? fmt(sec / 3600, 1) + " س" : fmt(sec / 60, 1) + " د";
-  const pRows = players.slice(0, 40).map((p) => `<tr><td>${label(p.h)}${inGame.has(p.h) ? ' <span class="dot"></span>' : ""}<br><span class="meta">${firstJoin[p.h] && firstJoin[p.h].isNew ? "جديد" : "عائد"}</span></td><td><b>${mm(p.s)}</b></td><td>${p.n}</td><td>${mm(p.max)}</td><td>${p.lv}</td><td>${p.nights}</td></tr>`).join("");
+  const pRows = players.slice(0, 40).map((p) => `<tr><td class="tnum">${label(p.h)}${inGame.has(p.h) ? ' <span class="dot"></span>' : ""}<br><span class="meta">${firstJoin[p.h] && firstJoin[p.h].isNew ? "جديد" : "عائد"}</span></td><td><b>${mm(p.s)}</b></td><td>${p.n}</td><td>${mm(p.max)}</td><td>${p.lv}</td><td>${p.nights}</td></tr>`).join("");
   const pTable = pRows ? `<div class="tscroll"><table><thead><tr><th>اللاعب</th><th>مجموع وقته</th><th>مرات الدخول</th><th>أطول جلسة</th><th>المستوى</th><th>الليالي</th></tr></thead><tbody>${pRows}</tbody></table></div>` : '<p class="meta">لم يغادر أحد بعد.</p>';
   const playersCard = `<div class="chart-card" style="margin-top:14px"><h3>كل لاعب وكم لعب</h3><p class="desc">مجموع وقت كل لاعب في كل زياراته، مرتبًا من الأطول. النقطة الخضراء = داخل اللعبة الآن (ويُحسب وقته بعد خروجه).</p>${pTable}</div>`;
 
   // recent sessions
-  const rows = leaves.slice(-15).reverse().map((e) => `<tr><td>${label(e.h)}</td><td>${esc(riyadhTime(e.t))}</td><td><b>${fmt(e.s / 60, 1)} د</b></td><td>${e.lv}</td><td>${e.n}</td></tr>`).join("");
+  const rows = leaves.slice(-15).reverse().map((e) => `<tr><td class="tnum">${label(e.h)}</td><td>${esc(riyadhTime(e.t))}</td><td><b>${fmt(e.s / 60, 1)} د</b></td><td>${e.lv}</td><td>${e.n}</td></tr>`).join("");
   const table = rows ? `<div class="tscroll"><table><thead><tr><th>اللاعب</th><th>وقت الخروج</th><th>المدة</th><th>المستوى</th><th>الليالي</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="meta">لم يغادر أحد بعد.</p>';
 
   return head + `
@@ -527,6 +535,81 @@ function liveSection() {
   </div>
   ${playersCard}
   <div class="chart-card" style="margin-top:14px"><h3>آخر الجلسات</h3><p class="desc">كم مكث كل لاعب وإلى أي مستوى وصل عند خروجه. (الوسيط: ${median == null ? "—" : fmt(median, 1)} دقيقة)</p>${table}</div>`;
+}
+
+let CAMPS = [], CAMP_SEL = 0;
+function campaignSection(M, newS) {
+  const head = '<h2>📣 متابعة الحملة الإعلانية<small>كل ما يخص الإعلان في مكان واحد: التكلفة، جودة اللاعبين، وهل يبقون ويتقدمون؟</small></h2>';
+  const find = (arr, re) => (arr || []).find((s) => re.test(s.key)) || { points: [] };
+  const adNewAll = find(M.newPlayersBySource, /sponsor|ads/i).points;
+  const lastT = (M.dau || []).length ? M.dau[M.dau.length - 1].t : (adNewAll.length ? adNewAll[adNewAll.length - 1].t : null);
+  if (!lastT) return head + '<div class="chart-card"><p class="desc">لا توجد بيانات بعد.</p></div>';
+  const addDays = (d, k) => { const x = new Date(d + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() + k); return x.toISOString().slice(0, 10); };
+  const camps = CAMPS.length ? CAMPS : [{ name: "آخر 7 أيام (لم تُسجَّل حملة بعد)", start: addDays(lastT, -6), end: lastT, auto: true }];
+  const idx = Math.min(CAMP_SEL, camps.length - 1);
+  const c = camps[idx];
+  const start = c.start, end = c.end && c.end < lastT ? c.end : lastT;
+  const inWin = (pts) => pts.filter((p) => p.t >= start && p.t <= end);
+  const len = Math.max(1, Math.round((new Date(end) - new Date(start)) / 864e5) + 1);
+  const prevStart = addDays(start, -len), prevEnd = addDays(start, -1);
+  const inPrev = (pts) => pts.filter((p) => p.t >= prevStart && p.t <= prevEnd);
+
+  const adNew = sum(inWin(adNewAll)) || 0;
+  const adNewPrev = sum(inPrev(adNewAll)) || 0;
+  const d1Ads = asPercent(find(M.d1BySource, /sponsor|ads/i).points);
+  const d1 = wavg(inWin(d1Ads), adNewAll);
+  const d7Ads = asPercent(find(M.d7BySource, /sponsor|ads/i).points);
+  const d7 = wavg(inWin(d7Ads), adNewAll);
+  const ptAds = find(M.playtimeBySource, /sponsor|ads/i).points;
+  const pt = avg(inWin(ptAds));
+  const dauAvg = avg(inWin(M.dau || [])), dauPrev = avg(inPrev(M.dau || []));
+  const cost = c.budget && adNew > 0 ? c.budget / adNew : null;
+  const spentSoFar = c.budget || null;
+
+  // live data inside the window (all sources: the game cannot tell which player came from the ad)
+  const ev = (LIVE && LIVE.events) || [];
+  const day = (t) => new Date(t * 1000).toLocaleDateString("en-CA", { timeZone: "Asia/Riyadh" });
+  const wj = ev.filter((e) => e.kind === "join" && day(e.t) >= start);
+  const wl = ev.filter((e) => e.kind === "leave" && day(e.t) >= start);
+  const liveP = new Set(wj.map((e) => e.h)).size;
+  const liveAvg = wl.length ? wl.reduce((a, e) => a + e.s, 0) / wl.length / 60 : null;
+  const liveShort = wl.length ? Math.round((wl.filter((e) => e.s < 60).length / wl.length) * 100) : null;
+  const bestLv = {}; ev.filter((e) => day(e.t) >= start).forEach((e) => { bestLv[e.h] = Math.max(bestLv[e.h] || 1, e.lv); });
+  const lvVals = Object.values(bestLv);
+  const past1 = lvVals.length ? Math.round((lvVals.filter((l) => l >= 2).length / lvVals.length) * 100) : null;
+  const nights1 = (() => { const m = {}; ev.filter((e) => day(e.t) >= start).forEach((e) => { m[e.h] = Math.max(m[e.h] || 0, e.n); }); const v = Object.values(m); return v.length ? Math.round((v.filter((x) => x >= 1).length / v.length) * 100) : null; })();
+
+  // verdict in plain words
+  const v = [];
+  if (adNew === 0) v.push("لم يصل لاعبون من الإعلانات في هذه الفترة بعد (أرقام روبلكس تتأخر يومين تقريبًا).");
+  else {
+    if (cost != null) v.push(`تكلفة اللاعب الجديد من الإعلان ≈ <b>$${fmt(cost, 2)}</b> (${fmt(adNew)} لاعب مقابل $${fmt(c.budget, 2)}).`);
+    else v.push(`وصل <b>${fmt(adNew)}</b> لاعب جديد من الإعلانات. أضيفي ميزانية الحملة في ملف <b>data/campaigns.json</b> لأحسب تكلفة اللاعب.`);
+    if (d1 != null) v.push(d1 >= 8 ? `جودة اللاعبين جيدة: <b>${fmt(d1, 1)}%</b> عادوا في اليوم التالي.` : `من الإعلان يعود <b>${fmt(d1, 1)}%</b> فقط في اليوم التالي (الهدف 8%+). الإعلان يجلب لاعبين لا يبقون.`);
+    if (liveShort != null && liveShort >= 50) v.push(`<b>${liveShort}%</b> من الجلسات تنتهي في أقل من دقيقة: الجذب الأول ضعيف.`);
+  }
+  const verdict = `<div class="chart-card verdict">${v.map((x) => `<div>• ${x}</div>`).join("")}</div>`;
+
+  const tile = (big, small) => `<div class="live-stat"><b>${big}</b><span>${small}</span></div>`;
+  const change = (cur, prev) => prev ? ` (${cur >= prev ? "▲" : "▼"} عن الفترة السابقة ${fmt(prev)})` : "";
+  const tiles = `<div class="live-grid">
+    ${tile(fmt(adNew), "لاعبون جدد من الإعلان" + change(adNew, adNewPrev))}
+    ${tile(cost != null ? "$" + fmt(cost, 2) : "—", "تكلفة اللاعب الواحد")}
+    ${tile(pct(d1), "يعودون في اليوم التالي (من الإعلان)")}
+    ${tile(pct(d7), "يعودون بعد أسبوع (من الإعلان)")}
+    ${tile(pt == null ? "—" : fmt(pt, 1) + " د", "دقائق لعب لاعبي الإعلان يوميًا")}
+    ${tile(fmt(dauAvg, 1), "لاعبون يوميًا في الفترة" + (dauPrev != null ? ` (قبلها ${fmt(dauPrev, 1)})` : ""))}
+    ${tile(liveP || "—", "لاعبون مباشر من اللعبة")}
+    ${tile(liveAvg == null ? "—" : fmt(liveAvg, 1) + " د", "متوسط جلسة (مباشر)")}
+    ${tile(liveShort == null ? "—" : liveShort + "%", "جلسات أقل من دقيقة (مباشر)")}
+    ${tile(past1 == null ? "—" : past1 + "%", "وصلوا المستوى 2 فأكثر (مباشر)")}
+    ${tile(nights1 == null ? "—" : nights1 + "%", "نجوا من ليلة واحدة على الأقل (مباشر)")}
+  </div>`;
+  const pick = camps.length > 1 ? `<div class="camp-pick">${camps.map((x, i) => `<button data-camp="${i}" aria-pressed="${i === idx}">${esc(x.name)}</button>`).join("")}</div>` : "";
+  const title = `<p class="meta" style="margin:0 0 10px"><b>${esc(c.name)}</b> · من <bdi>${esc(start)}</bdi> إلى <bdi>${esc(end)}</bdi>${c.budget ? " · ميزانية $" + fmt(c.budget, 2) : ""}</p>`;
+  return head + pick + title + verdict + tiles +
+    `<div class="chart-card"><h3>لاعبون جدد من الإعلان يوميًا</h3><p class="desc">إذا ارتفع الخط أثناء الحملة ثم هبط بعدها فالإعلان يعمل. الأرقام تتأخر يومين تقريبًا.</p><div class="chart" id="c-camp"></div></div>
+    <p class="meta" style="margin:8px 4px">القسم «مباشر» يشمل كل اللاعبين وليس لاعبي الإعلان فقط، لأن اللعبة لا تعرف مصدر كل لاعب.</p>`;
 }
 function trendWord(cur, prev) {
   if (cur == null || !prev) return "";
@@ -555,6 +638,7 @@ function renderEmpty(reason) {
 
 async function load() {
   try { EVENTS = await (await fetch("data/events.json", { cache: "no-store" })).json(); } catch { EVENTS = []; }
+  try { CAMPS = (await (await fetch("data/campaigns.json", { cache: "no-store" })).json()).sort((a, b) => b.start.localeCompare(a.start)); } catch { CAMPS = []; }
   try { LIVE = await (await fetch("data/live.json", { cache: "no-store" })).json(); } catch { LIVE = null; }
   try {
     const res = await fetch("data/analytics.json", { cache: "no-store" });
