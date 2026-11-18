@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-18T09:48:17.644Z",
+ "updatedAt": "2026-11-18T18:40:29.332Z",
  "events": [
   {
    "id": "dYn2PQ9amk0w",
@@ -100,6 +100,66 @@
    "n": 3,
    "on": 0,
    "s": 604
+  },
+  {
+   "id": "ScbpZxeBYTn1",
+   "t": 1795008646,
+   "kind": "join",
+   "h": "bef02000",
+   "lv": 1,
+   "n": 0,
+   "on": 1,
+   "isNew": true
+  },
+  {
+   "id": "WDC5a1QtlJiZ",
+   "t": 1795008648,
+   "kind": "join",
+   "h": "2e573800",
+   "lv": 1,
+   "n": 0,
+   "on": 2,
+   "isNew": true
+  },
+  {
+   "id": "nR6kr0IMPaV0",
+   "t": 1795008872,
+   "kind": "leave",
+   "h": "bef02000",
+   "lv": 1,
+   "n": 0,
+   "on": 0,
+   "s": 227
+  },
+  {
+   "id": "BW8Vyyg5RvJa",
+   "t": 1795011746,
+   "kind": "leave",
+   "h": "347a0000",
+   "lv": 1,
+   "n": 0,
+   "on": 0,
+   "s": 13
+  },
+  {
+   "id": "1jqdfmNnTIGw",
+   "t": 1795011750,
+   "kind": "join",
+   "h": "347a0000",
+   "lv": 1,
+   "n": 0,
+   "on": 1,
+   "isNew": true
+  },
+  {
+   "id": "fBSLxN4C3483",
+   "t": 1795011982,
+   "kind": "leave",
+   "h": "347a0000",
+   "lv": 1,
+   "n": 0,
+   "on": 0,
+   "s": 233
   }
  ]
 }
