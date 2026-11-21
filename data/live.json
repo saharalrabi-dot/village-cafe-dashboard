@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-20T23:15:52.311Z",
+ "updatedAt": "2026-11-21T04:10:25.453Z",
  "events": [
   {
    "id": "dYn2PQ9amk0w",
@@ -160,6 +160,36 @@
    "n": 0,
    "on": 0,
    "s": 233
+  },
+  {
+   "id": "K1ZkM37EGLkP",
+   "t": 1795217941,
+   "kind": "leave",
+   "h": "c0e5d000",
+   "lv": 1,
+   "n": 0,
+   "on": 0,
+   "s": 4
+  },
+  {
+   "id": "ETJT0yoL08sG",
+   "t": 1795217943,
+   "kind": "join",
+   "h": "c0e5d000",
+   "lv": 1,
+   "n": 0,
+   "on": 1,
+   "isNew": true
+  },
+  {
+   "id": "REtbTCMG4YSr",
+   "t": 1795217971,
+   "kind": "leave",
+   "h": "c0e5d000",
+   "lv": 1,
+   "n": 0,
+   "on": 0,
+   "s": 29
   }
  ]
 }
